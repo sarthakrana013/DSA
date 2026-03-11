@@ -1,22 +1,20 @@
 class Solution:
     def largestRectangleArea(self, heights: list[int]) -> int:
-        # Use a stack to store (index, height)
-        stack = [] # Pairs of (index, height)
+        stack = [-1] # Initialize with -1 to handle width calculation for the first element
         max_area = 0
+        # Add a sentinel value (0) to the end to flush the stack
+        heights.append(0)
         
-        for i, h in enumerate(heights):
-            start = i
-            # If current height is lower, pop from stack and calculate area
-            while stack and stack[-1][1] > h:
-                index, height = stack.pop()
-                max_area = max(max_area, height * (i - index))
-                # The current bar's 'start' moves back to the popped index
-                start = index
+        for i in range(len(heights)):
+            # While the current height is less than the height of the bar at stack top
+            while stack[-1] != -1 and heights[stack[-1]] >= heights[i]:
+                current_height = heights[stack.pop()]
+                # Width = current index - new stack top - 1
+                current_width = i - stack[-1] - 1
+                max_area = max(max_area, current_height * current_width)
             
-            stack.append((start, h))
+            stack.append(i)
             
-        # Clear out the remaining bars in the stack
-        for i, h in stack:
-            max_area = max(max_area, h * (len(heights) - i))
-            
+        # Optional: remove the sentinel if you need to keep 'heights' original
+        heights.pop() 
         return max_area
